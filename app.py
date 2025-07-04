@@ -43,4 +43,5 @@ fig_categoria = px.bar(df_filtrado['Categoria'].value_counts().reset_index(),
 st.plotly_chart(fig_categoria, use_container_width=True)
 
 # Tabela
-st.subheader("📋 Tabe
+st.subheader("📋 Tabela de Livros")
+st.dataframe(df_filtrado.reset_index(drop=True), use_container_width=True)
