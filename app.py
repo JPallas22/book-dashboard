@@ -1,39 +1,46 @@
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
+import plotly.express as px
 
 # Carregar dados
-df = pd.read_csv('livros.csv')
+df = pd.read_csv("livros.csv")
+df.columns = df.columns.str.strip()  # remover espaços extras
 
-# Título
-st.title("📚 Meu KindleLícia")
-
-# Limpar nomes de colunas
-df.columns = df.columns.str.strip()
+st.set_page_config(page_title="Meu Painel de Leitura", layout="wide")
+st.title("📚 Meu Dashboard de Leitura")
 
 # Filtros
-status_options = st.multiselect("Filtrar por status:", df['Status'].unique(), default=df['Status'].unique())
-categoria_options = st.multiselect("Filtrar por categoria:", df['Categoria'].dropna().unique(), default=df['Categoria'].dropna().unique())
+status_list = df['Status'].dropna().unique().tolist()
+categoria_list = df['Categoria'].dropna().unique().tolist()
 
-df_filtrado = df[df['Status'].isin(status_options) & df['Categoria'].isin(categoria_options)]
+with st.sidebar:
+    st.header("🔎 Filtros")
+    status_filter = st.multiselect("Status", status_list, default=status_list)
+    categoria_filter = st.multiselect("Categoria", categoria_list, default=categoria_list)
+
+# Filtrando
+df_filtrado = df[df['Status'].isin(status_filter) & df['Categoria'].isin(categoria_filter)]
 
 # Métricas principais
-st.metric("Total de livros", len(df_filtrado))
-st.metric("Livros lidos", len(df_filtrado[df_filtrado['Status'].str.lower() == 'lido']))
+col1, col2, col3 = st.columns(3)
+col1.metric("📘 Total de livros", len(df_filtrado))
+col2.metric("✅ Lidos", len(df_filtrado[df_filtrado['Status'].str.lower() == "lido"]))
+col3.metric("📖 Lendo", len(df_filtrado[df_filtrado['Status'].str.lower() == "lendo"]))
+
+st.markdown("---")
 
 # Gráfico de status
 st.subheader("📊 Distribuição por Status")
-status_count = df_filtrado['Status'].value_counts()
-fig1, ax1 = plt.subplots()
-ax1.pie(status_count, labels=status_count.index, autopct='%1.1f%%')
-ax1.axis('equal')
-st.pyplot(fig1)
+fig_status = px.pie(df_filtrado, names='Status', title='Distribuição dos Livros por Status', hole=0.4)
+st.plotly_chart(fig_status, use_container_width=True)
 
 # Gráfico de categorias
-st.subheader("📚 Categorias mais lidas")
-categoria_count = df_filtrado['Categoria'].value_counts().head(10)
-st.bar_chart(categoria_count)
+st.subheader("📚 Livros por Categoria")
+fig_categoria = px.bar(df_filtrado['Categoria'].value_counts().reset_index(),
+                       x='index', y='Categoria',
+                       labels={'index': 'Categoria', 'Categoria': 'Quantidade'},
+                       title='Quantidade de Livros por Categoria')
+st.plotly_chart(fig_categoria, use_container_width=True)
 
-# Tabela com detalhes
-st.subheader("📋 Lista de Livros")
-st.dataframe(df_filtrado.reset_index(drop=True))
+# Tabela
+st.subheader("📋 Tabe
