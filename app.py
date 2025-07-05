@@ -38,13 +38,11 @@ df_filtrado = df[df['Status'].isin(status_filter)]
 # Métricas
 total = len(df_filtrado)
 lidos = len(df_filtrado[df_filtrado['Status'].str.lower() == "lido"])
-lendo = len(df_filtrado[df_filtrado['Status'].str.lower() == "lendo"])
 desejados = len(df_filtrado[df_filtrado['Status'].str.lower() == "desejado"])
 
 col1, col2, col3, col4 = st.columns(4)
 col1.metric("📘 Total de livros", total)
 col2.metric("✅ Lidos", lidos)
-col3.metric("📖 Lendo", lendo)
 col4.metric("📝 Desejados", desejados)
 
 st.markdown("---")
