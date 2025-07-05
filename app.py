@@ -6,7 +6,7 @@ import plotly.express as px
 colors = ['#809671', '#b3b792', '#d2ab80', '#725c3a', '#5d624c', '#868b6b', '#e5d2b8', '#9ca089', '#e1dbcb', '#c5beab']
 
 # Configurações da página
-st.set_page_config(page_title="Painel de Leitura", layout="wide", page_icon="📚")
+st.set_page_config(page_title="Meu KindleLícia", layout="wide", page_icon="📚")
 st.markdown("""
     <style>
     body {
@@ -26,7 +26,7 @@ st.markdown("""
 df = pd.read_csv("livros.csv")
 df.columns = df.columns.str.strip()
 
-st.title("📚 Meu Dashboard de Leitura")
+st.title("📚 Meu KindleLícia")
 
 # Filtros
 status_list = df['Status'].dropna().unique().tolist()
@@ -40,10 +40,10 @@ total = len(df_filtrado)
 lidos = len(df_filtrado[df_filtrado['Status'].str.lower() == "lido"])
 desejados = len(df_filtrado[df_filtrado['Status'].str.lower() == "desejado"])
 
-col1, col2, col3, col4 = st.columns(4)
+col1, col2, col3 = st.columns(3)
 col1.metric("📘 Total de livros", total)
 col2.metric("✅ Lidos", lidos)
-col4.metric("📝 Desejados", desejados)
+col3.metric("📝 Desejados", desejados)
 
 st.markdown("---")
 
