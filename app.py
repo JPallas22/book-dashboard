@@ -6,7 +6,7 @@ import plotly.express as px
 colors = ['#809671', '#b3b792', '#d2ab80', '#725c3a', '#5d624c', '#868b6b', '#e5d2b8', '#9ca089', '#e1dbcb', '#c5beab']
 
 # Configurações da página
-st.set_page_config(page_title="Meu KindleLícia", layout="wide", page_icon="📚")
+st.set_page_config(page_title="Painel de Leitura", layout="wide", page_icon="📚")
 st.markdown("""
     <style>
     body {
@@ -26,48 +26,36 @@ st.markdown("""
 df = pd.read_csv("livros.csv")
 df.columns = df.columns.str.strip()
 
-st.title("📚 Meu KindleLícia")
+st.title("📚 Meu Dashboard de Leitura")
 
 # Filtros
 status_list = df['Status'].dropna().unique().tolist()
-categoria_list = df['Categoria'].dropna().unique().tolist()
-
-with st.sidebar:
-    st.header("🔎 Filtros")
-    status_filter = st.multiselect("Status", status_list, default=status_list)
-    categoria_filter = st.multiselect("Categoria", categoria_list, default=categoria_list)
+status_filter = st.sidebar.multiselect("Filtrar por status:", status_list, default=status_list)
 
 # Filtrando
-df_filtrado = df[df['Status'].isin(status_filter) & df['Categoria'].isin(categoria_filter)]
+df_filtrado = df[df['Status'].isin(status_filter)]
 
 # Métricas
-col1, col2, col3 = st.columns(3)
-col1.metric("📘 Total de livros", len(df_filtrado))
-col2.metric("✅ Lidos", len(df_filtrado[df_filtrado['Status'].str.lower() == "lido"]))
-col3.metric("📖 Lendo", len(df_filtrado[df_filtrado['Status'].str.lower() == "lendo"]))
+total = len(df_filtrado)
+lidos = len(df_filtrado[df_filtrado['Status'].str.lower() == "lido"])
+lendo = len(df_filtrado[df_filtrado['Status'].str.lower() == "lendo"])
+desejados = len(df_filtrado[df_filtrado['Status'].str.lower() == "desejado"])
+
+col1, col2, col3, col4 = st.columns(4)
+col1.metric("📘 Total de livros", total)
+col2.metric("✅ Lidos", lidos)
+col3.metric("📖 Lendo", lendo)
+col4.metric("📝 Desejados", desejados)
 
 st.markdown("---")
 
-# Gráfico de status
+# Gráfico de Status
 st.subheader("📊 Distribuição por Status")
 fig_status = px.pie(df_filtrado, names='Status', hole=0.4,
                     title='Distribuição dos Livros por Status',
                     color_discrete_sequence=colors)
 st.plotly_chart(fig_status, use_container_width=True)
 
-# Gráfico de categorias
-st.subheader("📚 Livros por Categoria")
-categoria_count = df_filtrado['Categoria'].value_counts().reset_index()
-categoria_count.columns = ['Categoria', 'Quantidade']
-
-fig_categoria = px.bar(categoria_count,
-                       x='Categoria', y='Quantidade',
-                       labels={'Categoria': 'Categoria', 'Quantidade': 'Quantidade'},
-                       title='Quantidade de Livros por Categoria',
-                       color='Categoria',
-                       color_discrete_sequence=colors)
-st.plotly_chart(fig_categoria, use_container_width=True)
-
-# Tabela
-st.subheader("📋 Tabela de Livros")
+# Tabela de livros
+st.subheader("📋 Lista de Livros")
 st.dataframe(df_filtrado.reset_index(drop=True), use_container_width=True)
