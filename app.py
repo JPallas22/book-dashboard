@@ -2,11 +2,30 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
+# Cores personalizadas
+colors = ['#809671', '#b3b792', '#d2ab80', '#725c3a', '#5d624c', '#868b6b', '#e5d2b8', '#9ca089', '#e1dbcb', '#c5beab']
+
+# Configurações da página
+st.set_page_config(page_title="Meu Painel de Leitura", layout="wide", page_icon="📚")
+st.markdown("""
+    <style>
+    body {
+        background-color: #e5e0d8;
+        color: #5d624c;
+    }
+    .stApp {
+        background-color: #e5e0d8;
+    }
+    .stDataFrame {
+        background-color: #e1dbcb;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
 # Carregar dados
 df = pd.read_csv("livros.csv")
-df.columns = df.columns.str.strip()  # remover espaços extras
+df.columns = df.columns.str.strip()
 
-st.set_page_config(page_title="Meu Painel de Leitura", layout="wide")
 st.title("📚 Meu Dashboard de Leitura")
 
 # Filtros
@@ -21,7 +40,7 @@ with st.sidebar:
 # Filtrando
 df_filtrado = df[df['Status'].isin(status_filter) & df['Categoria'].isin(categoria_filter)]
 
-# Métricas principais
+# Métricas
 col1, col2, col3 = st.columns(3)
 col1.metric("📘 Total de livros", len(df_filtrado))
 col2.metric("✅ Lidos", len(df_filtrado[df_filtrado['Status'].str.lower() == "lido"]))
@@ -31,20 +50,22 @@ st.markdown("---")
 
 # Gráfico de status
 st.subheader("📊 Distribuição por Status")
-fig_status = px.pie(df_filtrado, names='Status', title='Distribuição dos Livros por Status', hole=0.4)
+fig_status = px.pie(df_filtrado, names='Status', hole=0.4,
+                    title='Distribuição dos Livros por Status',
+                    color_discrete_sequence=colors)
 st.plotly_chart(fig_status, use_container_width=True)
 
 # Gráfico de categorias
 st.subheader("📚 Livros por Categoria")
-# Contar categorias e dar nomes às colunas
 categoria_count = df_filtrado['Categoria'].value_counts().reset_index()
 categoria_count.columns = ['Categoria', 'Quantidade']
 
-# Gráfico com Plotly
 fig_categoria = px.bar(categoria_count,
                        x='Categoria', y='Quantidade',
                        labels={'Categoria': 'Categoria', 'Quantidade': 'Quantidade'},
-                       title='Quantidade de Livros por Categoria')
+                       title='Quantidade de Livros por Categoria',
+                       color='Categoria',
+                       color_discrete_sequence=colors)
 st.plotly_chart(fig_categoria, use_container_width=True)
 
 # Tabela
