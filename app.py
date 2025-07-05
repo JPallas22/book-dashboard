@@ -36,9 +36,14 @@ st.plotly_chart(fig_status, use_container_width=True)
 
 # Gráfico de categorias
 st.subheader("📚 Livros por Categoria")
-fig_categoria = px.bar(df_filtrado['Categoria'].value_counts().reset_index(),
-                       x='index', y='Categoria',
-                       labels={'index': 'Categoria', 'Categoria': 'Quantidade'},
+# Contar categorias e dar nomes às colunas
+categoria_count = df_filtrado['Categoria'].value_counts().reset_index()
+categoria_count.columns = ['Categoria', 'Quantidade']
+
+# Gráfico com Plotly
+fig_categoria = px.bar(categoria_count,
+                       x='Categoria', y='Quantidade',
+                       labels={'Categoria': 'Categoria', 'Quantidade': 'Quantidade'},
                        title='Quantidade de Livros por Categoria')
 st.plotly_chart(fig_categoria, use_container_width=True)
 
